@@ -1,0 +1,78 @@
+# ==========================================
+# Sensitive Credentials & Environment Files
+# ==========================================
+.env
+.env*
+*.env
+*.env.local
+*.env.*.local
+.env.production
+.env.development
+.env.test
+!*.env.example
+
+# ==========================================
+# Frontend (Next.js / Node)
+# ==========================================
+frontend/node_modules/
+node_modules/
+.next/
+frontend/.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# NPM / Yarn / PNPM logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# Backend (Python / FastAPI)
+# ==========================================
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Machine Learning Models & Large Weights
+*.pt
+*.pth
+*.onnx
+*.engine
+yolov8*.pt
+backend/yolov8n.pt
+backend/app/weights/*
+!backend/app/weights/.gitkeep
+
+# Local test outputs, debug scripts, sample images
+backend/*.jpg
+backend/*.jpeg
+backend/*.png
+backend/debug_*.py
+backend/test_*.py
+backend/find_plate_exact.py
+backend/inspect_bbox.py
+backend/check_db.py
+
+# ==========================================
+# Operating System & IDE Artifacts
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
