@@ -126,9 +126,6 @@ AutoScan-AI/
 │   ├── tailwind.config.ts              # Tailwind design configuration
 │   └── tsconfig.json                   # TypeScript configuration
 │
-├── start_all.bat                       # One-click startup script for both servers
-├── start_backend.bat                   # Launcher for FastAPI backend
-├── start_frontend.bat                  # Launcher for Next.js frontend
 ├── .gitignore                          # Git ignore configuration
 └── README.md                           # Project documentation
 ```
@@ -261,20 +258,6 @@ cd AutoScan-AI-Automatic-Number-Plate-Recognition-ANPR-
    npm run dev
    ```
    - Open your browser at [http://localhost:3000](http://localhost:3000)
-
----
-
-## ⚡ Quick Start (Windows One-Click)
-
-If you are on Windows, you can start both the backend and frontend simultaneously:
-
-```bat
-start_all.bat
-```
-
-Or run them individually via:
-- `start_backend.bat`
-- `start_frontend.bat`
 
 ---
 
