@@ -15,26 +15,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen flex flex-col bg-[#040711] text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+    <html lang="en">
+      <body className="min-h-screen flex flex-col bg-[#fff7fa] text-slate-600 antialiased selection:bg-pink-200 selection:text-pink-900">
         <AuthProvider>
           <Navbar />
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             {children}
           </main>
-          <footer className="border-t border-slate-900/80 bg-slate-950/70 py-6 text-center text-xs text-slate-500 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p>© 2026 AutoScan Fleet Intelligence. Precision License Plate Recognition & Automated Verification.</p>
-              <div className="flex items-center gap-3 text-slate-400">
-                <span className="flex items-center gap-1.5 text-emerald-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Fleet Cloud Active
-                </span>
-                <span>•</span>
-                <span>Neon PostgreSQL</span>
-                <span>•</span>
-                <span>Cloudinary HD</span>
-              </div>
+          <footer className="border-t border-pink-100 bg-white/80 py-6 text-xs text-slate-500 backdrop-blur-md">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+              <p className="text-slate-600">
+                © 2026 AutoScan AI · Built by{" "}
+                <span className="font-semibold text-pink-600">CodeWithMunnaX</span>
+              </p>
+              <p className="text-slate-400">YOLOv8 · OpenCV · Gemini Vision · FastAPI</p>
             </div>
           </footer>
         </AuthProvider>

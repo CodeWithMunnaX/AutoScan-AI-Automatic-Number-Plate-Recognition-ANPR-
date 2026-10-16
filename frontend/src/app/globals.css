@@ -3,36 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --background: #040711;
-  --foreground: #f1f5f9;
+  --background: #fff7fa;
+  --foreground: #1e293b;
+  color-scheme: light;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(6, 182, 212, 0.05), transparent),
-    radial-gradient(ellipse 50% 30% at 10% 40%, rgba(59, 130, 246, 0.04), transparent);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(252, 231, 243, 0.9), transparent),
+    radial-gradient(ellipse 50% 35% at 95% 5%, rgba(255, 228, 230, 0.6), transparent);
   background-attachment: fixed;
 }
 
-/* Custom subtle cyber scrollbar */
+/* Light scrollbar with soft pink thumb */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #040711;
+  background: #fdf2f8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: #fbcfe8;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #f9a8d4;
+}
+html {
+  scrollbar-color: #fbcfe8 #fdf2f8;
 }
 
 @keyframes fadeIn {
@@ -50,14 +53,25 @@ body {
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Cyber Glassmorphic Surface */
-.cyber-card {
-  background: rgba(11, 17, 32, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(30, 41, 59, 0.8);
-}
+/* Shared light-theme building blocks (reuse these on any page) */
+@layer components {
+  .card {
+    @apply bg-white border border-pink-100 rounded-2xl shadow-sm shadow-pink-100/50;
+  }
 
-.cyber-card-glow {
-  box-shadow: 0 0 30px -10px rgba(16, 185, 129, 0.15);
-}
+  .card-glow {
+    @apply shadow-lg shadow-pink-100/60;
+  }
 
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-xl shadow-sm shadow-pink-200 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-pink-200 text-pink-600 hover:bg-pink-50 text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input {
+    @apply w-full bg-white border border-pink-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition;
+  }
+}

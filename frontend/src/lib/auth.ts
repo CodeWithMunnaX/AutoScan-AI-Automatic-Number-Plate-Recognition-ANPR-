@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -10,35 +10,32 @@ export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
-      name: "Fleet Credentials",
+      name: "Email",
       credentials: {
-        name: { label: "Name", type: "text", placeholder: "Fleet Officer" },
-        email: { label: "Email", type: "email", placeholder: "operator@autoscan.ai" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Support both login and new sign-up registration
-        const email = credentials?.email || "inspector@autoscan.ai";
-        const customName = credentials?.name?.trim();
-        const fallbackName = email.split("@")[0].replace(/[\._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-        const name = customName || fallbackName;
+        if (!credentials?.email || !credentials?.password) return null;
+
+        // Password is verified by the FastAPI backend against the hashed value in the database
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+        });
+        if (!res.ok) return null;
+
+        const data = await res.json();
         return {
-          id: "user-" + Math.random().toString(36).substring(2, 9),
-          name: name || "Fleet Operator",
-          email: email,
+          id: String(data.user.id),
+          name: data.user.name,
+          email: data.user.email,
         };
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_ID || "",
-      clientSecret: process.env.GITHUB_SECRET || "",
-    }),
   ],
-  secret: process.env.NEXTAUTH_SECRET || "anpr-car-scanner-secret-fallback-key",
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -59,4 +56,3 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
 };
-

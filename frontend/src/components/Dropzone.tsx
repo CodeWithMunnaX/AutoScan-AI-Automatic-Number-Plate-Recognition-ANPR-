@@ -93,23 +93,23 @@ export default function Dropzone({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer ${
+          className={`relative border-2 border-dashed rounded-3xl p-6 sm:p-12 text-center transition-all duration-200 cursor-pointer ${
             isDragOver
-              ? "border-emerald-500 bg-emerald-500/10 shadow-xl shadow-emerald-500/20 scale-[1.01]"
-              : "border-slate-800 hover:border-emerald-500/50 bg-slate-900/60 hover:bg-slate-900/90"
+              ? "border-pink-400 bg-pink-50 shadow-lg shadow-pink-100 scale-[1.01]"
+              : "border-pink-200 hover:border-pink-300 bg-white hover:bg-pink-50/40 shadow-sm shadow-pink-100/50"
           }`}
           onClick={() => fileInputRef.current?.click()}
         >
           <div className="flex flex-col items-center justify-center max-w-md mx-auto">
             {/* Animated Icon */}
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500/15 to-cyan-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/10">
+            <div className="w-16 h-16 rounded-2xl bg-pink-50 border border-pink-200 flex items-center justify-center text-pink-500 mb-4 group-hover:scale-110 transition-transform">
               <UploadCloud className="w-8 h-8" />
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-1 tracking-tight">
+            <h3 className="text-lg font-bold text-slate-800 mb-1 tracking-tight">
               Upload Vehicle or License Plate Image
             </h3>
-            <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed">
               Drag and drop car photo here, or browse files from your device. Supports JPG, PNG, WEBP.
             </p>
 
@@ -121,16 +121,16 @@ export default function Dropzone({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl border border-slate-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-pink-50 text-pink-600 text-xs sm:text-sm font-semibold rounded-xl border border-pink-200 transition-colors"
               >
-                <ImageIcon className="w-4 h-4 text-emerald-400" />
+                <ImageIcon className="w-4 h-4 text-pink-500" />
                 <span>Browse File</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsCameraOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm shadow-pink-200 transition-colors active:scale-95"
               >
                 <Camera className="w-4 h-4" />
                 <span>Open Live Camera</span>
@@ -140,15 +140,15 @@ export default function Dropzone({
         </div>
       ) : (
         /* Image Preview Box */
-        <div className="relative border border-slate-800 bg-slate-900/80 rounded-3xl p-4 sm:p-6 overflow-hidden backdrop-blur-md">
+        <div className="relative card card-glow p-4 sm:p-6 overflow-hidden">
           {/* Top Preview Bar */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-            <div className="flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs sm:text-sm font-medium text-slate-200 truncate max-w-[200px] sm:max-w-md">
+          <div className="flex items-center justify-between pb-3 border-b border-pink-100 mb-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <ImageIcon className="w-4 h-4 text-pink-500 shrink-0" />
+              <span className="text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[160px] sm:max-w-md">
                 {selectedFile.name}
               </span>
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-400 shrink-0">
                 ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
               </span>
             </div>
@@ -157,7 +157,7 @@ export default function Dropzone({
               type="button"
               onClick={handleClear}
               disabled={isLoading}
-              className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors"
+              className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
               title="Remove image"
             >
               <X className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default function Dropzone({
           </div>
 
           {/* Image Container with Scanning Effect */}
-          <div className="relative rounded-2xl overflow-hidden bg-black/80 max-h-[420px] flex items-center justify-center border border-slate-800/80">
+          <div className="relative rounded-2xl overflow-hidden bg-pink-50/50 max-h-[420px] flex items-center justify-center border border-pink-100">
             {previewUrl && (
               <img
                 src={previewUrl}
@@ -176,17 +176,17 @@ export default function Dropzone({
 
             {/* Scanning Laser Animation during Loading */}
             {isLoading && (
-              <div className="absolute inset-0 pointer-events-none flex flex-col justify-start">
-                <div className="w-full h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_20px_#10b981] animate-scan-line" />
-                <div className="absolute inset-0 bg-emerald-950/20 backdrop-blur-[2px] flex flex-col items-center justify-center">
-                  <div className="bg-slate-950/90 border border-emerald-500/40 px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex flex-col items-center justify-center">
+                  <div className="bg-white border border-pink-200 px-5 sm:px-6 py-3.5 rounded-2xl shadow-lg shadow-pink-100 flex items-center gap-3 mx-4">
+                    <Loader2 className="w-5 h-5 text-pink-500 animate-spin" />
                     <div>
-                      <p className="text-sm font-bold text-white">Scanning Vehicle & License Plate...</p>
-                      <p className="text-[11px] text-emerald-400/80 font-medium">Precision Optical Recognition</p>
+                      <p className="text-sm font-bold text-slate-800">Scanning Vehicle & License Plate...</p>
+                      <p className="text-[11px] text-pink-500 font-medium">Precision Optical Recognition</p>
                     </div>
                   </div>
                 </div>
+                <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pink-500 to-transparent shadow-[0_0_16px_#ec4899] animate-scan-line" />
               </div>
             )}
           </div>
@@ -198,7 +198,7 @@ export default function Dropzone({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
-                className="px-3 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-800/70 hover:bg-slate-800 rounded-xl border border-slate-700/60 transition-colors"
+                className="px-3 py-2 text-xs font-medium text-pink-600 bg-white hover:bg-pink-50 rounded-xl border border-pink-200 transition-colors disabled:opacity-50"
               >
                 Change Photo
               </button>
@@ -206,7 +206,7 @@ export default function Dropzone({
                 type="button"
                 onClick={() => setIsCameraOpen(true)}
                 disabled={isLoading}
-                className="px-3 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-800/70 hover:bg-slate-800 rounded-xl border border-slate-700/60 transition-colors"
+                className="px-3 py-2 text-xs font-medium text-pink-600 bg-white hover:bg-pink-50 rounded-xl border border-pink-200 transition-colors disabled:opacity-50"
               >
                 Retake with Camera
               </button>
@@ -216,16 +216,16 @@ export default function Dropzone({
               type="button"
               onClick={onDetect}
               disabled={isLoading}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 disabled:opacity-50 text-slate-950 text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition-all active:scale-[0.98]"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 px-6 py-3 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-md shadow-pink-200 transition-colors active:scale-[0.98]"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
                   <span>Analyzing...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-slate-950 fill-current" />
+                  <Sparkles className="w-4 h-4 text-white fill-current" />
                   <span>Recognize Plate</span>
                 </>
               )}

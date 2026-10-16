@@ -8,6 +8,10 @@ const apiClient = axios.create({
   timeout: 120000, // 120s: covers free-tier server cold start (~50s) plus model inference
 });
 
+export async function signupUser(name: string, email: string, password: string): Promise<void> {
+  await apiClient.post("/api/auth/signup", { name, email, password });
+}
+
 export async function detectPlate(file: File): Promise<DetectionResult> {
   const formData = new FormData();
   formData.append("file", file);

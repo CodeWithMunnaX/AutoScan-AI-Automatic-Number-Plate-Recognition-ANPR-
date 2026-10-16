@@ -119,24 +119,24 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-2xl bg-white border border-pink-100 rounded-2xl overflow-hidden shadow-2xl shadow-pink-200/40 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-slate-950/60">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-pink-100 bg-white">
           <div className="flex items-center gap-2">
-            <Camera className="w-5 h-5 text-blue-400" />
-            <span className="font-semibold text-white">Live Camera Capture</span>
+            <Camera className="w-5 h-5 text-pink-500" />
+            <span className="font-semibold text-slate-800">Live Camera Capture</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-pink-600 rounded-lg hover:bg-pink-50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Viewfinder / Preview */}
-        <div className="relative flex-1 bg-black flex items-center justify-center min-h-[320px] max-h-[500px] overflow-hidden">
+        <div className="relative flex-1 bg-slate-900 flex items-center justify-center min-h-[320px] max-h-[500px] overflow-hidden">
           {error ? (
             <div className="p-6 text-center max-w-md">
               <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
@@ -144,7 +144,7 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
               <p className="text-sm text-slate-400 mb-4">{error}</p>
               <button
                 onClick={() => startCamera(facingMode)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
+                className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 Try Again
               </button>
@@ -169,8 +169,8 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
 
               {/* License Plate Framing Overlay */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6">
-                <div className="w-full max-w-sm aspect-[4/1.6] border-2 border-dashed border-blue-400/80 rounded-xl flex flex-col items-center justify-center bg-blue-500/10 shadow-[0_0_25px_rgba(59,130,246,0.3)]">
-                  <span className="text-xs font-semibold text-blue-200 tracking-wider uppercase bg-blue-950/80 px-2.5 py-0.5 rounded-full border border-blue-400/40">
+                <div className="w-full max-w-sm aspect-[4/1.6] border-2 border-dashed border-pink-300/90 rounded-xl flex flex-col items-center justify-center bg-pink-500/10 shadow-[0_0_25px_rgba(236,72,153,0.3)]">
+                  <span className="text-xs font-semibold text-pink-600 tracking-wider uppercase bg-white/90 px-2.5 py-0.5 rounded-full border border-pink-200">
                     Align Plate Here
                   </span>
                 </div>
@@ -183,13 +183,13 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
         </div>
 
         {/* Action Controls */}
-        <div className="p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
+        <div className="p-4 bg-white border-t border-pink-100 flex items-center justify-between gap-2">
           {!capturedDataUrl ? (
             <>
               <button
                 type="button"
                 onClick={toggleFacingMode}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-pink-600 bg-white hover:bg-pink-50 border border-pink-200 rounded-xl transition-colors"
                 title="Switch Camera (Front / Back)"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -200,7 +200,7 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
                 type="button"
                 onClick={captureSnapshot}
                 disabled={Boolean(error) || isCapturing}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 active:scale-95 transition-all"
+                className="flex items-center gap-2 px-5 sm:px-6 py-3 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white font-semibold rounded-full shadow-md shadow-pink-200 active:scale-95 transition-all"
               >
                 <div className="w-3 h-3 rounded-full bg-white animate-pulse" />
                 <span>Snap Photo</span>
@@ -209,7 +209,7 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-2 text-xs font-medium text-slate-400 hover:text-white"
+                className="px-3 py-2 text-xs font-medium text-slate-500 hover:text-pink-600 transition-colors"
               >
                 Cancel
               </button>
@@ -219,7 +219,7 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
               <button
                 type="button"
                 onClick={retakeSnapshot}
-                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-pink-600 bg-white hover:bg-pink-50 border border-pink-200 rounded-xl transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>Retake</span>
@@ -228,7 +228,7 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
               <button
                 type="button"
                 onClick={confirmCapture}
-                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shadow-lg shadow-emerald-600/30 transition-all"
+                className="flex items-center gap-2 px-5 sm:px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-xl shadow-md shadow-pink-200 transition-colors"
               >
                 <Check className="w-4 h-4" />
                 <span>Use This Photo</span>
