@@ -55,6 +55,7 @@ yolov8*.pt
 backend/yolov8n.pt
 backend/app/weights/*
 !backend/app/weights/.gitkeep
+!backend/app/weights/yolov8n.onnx
 
 # Local test outputs, debug scripts, sample images
 backend/*.jpg

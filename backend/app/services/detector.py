@@ -1,58 +1,79 @@
-import os
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 import logging
 from pathlib import Path
 import numpy as np
 import cv2
-from PIL import Image
 
 logger = logging.getLogger("anpr.detector")
 
-# Global singleton model to avoid reloading on each request
-_yolo_model = None
-_model_type = "none"
+# Global singleton ONNX session to avoid reloading on each request
+_onnx_session = None
+_session_failed = False
 
 MODEL_DIR = Path(__file__).resolve().parent.parent / "weights"
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
-CUSTOM_WEIGHTS_PATH = MODEL_DIR / "license_plate_yolov8n.pt"
+ONNX_WEIGHTS_PATH = MODEL_DIR / "yolov8n.onnx"
+YOLO_INPUT_SIZE = 640
+VEHICLE_CLASSES = [2, 3, 5, 7]  # COCO: car, motorcycle, bus, truck
+
 
 def get_detector():
     """
-    Load or retrieve the YOLO detection model if torch is allowed by OS policy.
+    Load or retrieve the YOLOv8n ONNX model (runs on onnxruntime, no PyTorch needed).
     """
-    global _yolo_model, _model_type
-    if _yolo_model is not None:
-        return _yolo_model, _model_type
+    global _onnx_session, _session_failed
+    if _onnx_session is not None or _session_failed:
+        return _onnx_session
 
     try:
-        from ultralytics import YOLO
-
-        if CUSTOM_WEIGHTS_PATH.exists() and CUSTOM_WEIGHTS_PATH.stat().st_size > 100000:
-            logger.info(f"Loading custom license plate YOLO model from {CUSTOM_WEIGHTS_PATH}")
-            _yolo_model = YOLO(str(CUSTOM_WEIGHTS_PATH))
-            _model_type = "license_plate_custom"
-            return _yolo_model, _model_type
-
-        # Try downloading specialized license plate detector
-        try:
-            import urllib.request
-            weights_url = "https://github.com/Muhammad-Raza-Ahmad/Automatic-Number-Plate-Recognition-Using-YOLOv8/raw/main/license_plate_detector.pt"
-            logger.info(f"Attempting to download specialized license plate detector from {weights_url}...")
-            urllib.request.urlretrieve(weights_url, str(CUSTOM_WEIGHTS_PATH))
-            if CUSTOM_WEIGHTS_PATH.exists() and CUSTOM_WEIGHTS_PATH.stat().st_size > 1000000:
-                _yolo_model = YOLO(str(CUSTOM_WEIGHTS_PATH))
-                _model_type = "license_plate_custom"
-                return _yolo_model, _model_type
-        except Exception as dl_err:
-            logger.warning(f"Could not download custom weights ({dl_err}), falling back to yolov8n.pt")
-
-        _yolo_model = YOLO("yolov8n.pt")
-        _model_type = "yolov8n_general"
-        return _yolo_model, _model_type
-
+        import onnxruntime as ort
+        logger.info(f"Loading YOLOv8n ONNX model from {ONNX_WEIGHTS_PATH}")
+        _onnx_session = ort.InferenceSession(str(ONNX_WEIGHTS_PATH), providers=["CPUExecutionProvider"])
     except Exception as e:
-        logger.warning(f"PyTorch/YOLO initialization bypassed ({e}). Using OpenCV computer vision detector.")
-        return None, "none"
+        _session_failed = True
+        logger.warning(f"YOLO ONNX initialization bypassed ({e}). Using OpenCV computer vision detector.")
+    return _onnx_session
+
+
+def run_yolo(session, image_bgr: np.ndarray, conf_thres: float = 0.25, iou_thres: float = 0.45) -> list[tuple[list[int], float, int]]:
+    """
+    Runs YOLOv8 ONNX inference and returns [(xyxy_box, confidence, class_id), ...] in image coordinates.
+    """
+    h, w = image_bgr.shape[:2]
+
+    # Letterbox resize to 640x640 keeping aspect ratio
+    scale = min(YOLO_INPUT_SIZE / w, YOLO_INPUT_SIZE / h)
+    new_w, new_h = int(round(w * scale)), int(round(h * scale))
+    pad_x, pad_y = (YOLO_INPUT_SIZE - new_w) // 2, (YOLO_INPUT_SIZE - new_h) // 2
+    canvas = np.full((YOLO_INPUT_SIZE, YOLO_INPUT_SIZE, 3), 114, dtype=np.uint8)
+    canvas[pad_y:pad_y + new_h, pad_x:pad_x + new_w] = cv2.resize(image_bgr, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+
+    blob = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB).transpose(2, 0, 1)[None].astype(np.float32) / 255.0
+    preds = session.run(None, {session.get_inputs()[0].name: blob})[0][0].T  # (8400, 84)
+
+    class_scores = preds[:, 4:]
+    class_ids = class_scores.argmax(axis=1)
+    confs = class_scores[np.arange(len(class_ids)), class_ids]
+    keep = confs >= conf_thres
+    if not keep.any():
+        return []
+
+    preds, class_ids, confs = preds[keep], class_ids[keep], confs[keep]
+    cx, cy, bw, bh = preds[:, 0], preds[:, 1], preds[:, 2], preds[:, 3]
+    x1 = (cx - bw / 2 - pad_x) / scale
+    y1 = (cy - bh / 2 - pad_y) / scale
+    x2 = (cx + bw / 2 - pad_x) / scale
+    y2 = (cy + bh / 2 - pad_y) / scale
+
+    nms_boxes = [[float(a), float(b), float(c - a), float(d - b)] for a, b, c, d in zip(x1, y1, x2, y2)]
+    indices = cv2.dnn.NMSBoxes(nms_boxes, confs.tolist(), conf_thres, iou_thres)
+
+    detections = []
+    for i in np.array(indices).flatten():
+        box = [
+            int(max(0, x1[i])), int(max(0, y1[i])),
+            int(min(w, x2[i])), int(min(h, y2[i])),
+        ]
+        detections.append((box, float(confs[i]), int(class_ids[i])))
+    return detections
 
 
 def detect_plate_with_opencv(image_bgr: np.ndarray) -> tuple[list[int], float] | None:
@@ -154,58 +175,44 @@ def detect_license_plate(image_np: np.ndarray) -> tuple[list[int], float]:
     h, w = image_np.shape[:2]
 
     # Try YOLO model first if initialized
-    model, model_type = get_detector()
-    if model is not None:
+    session = get_detector()
+    if session is not None:
         try:
-            results = model.predict(image_np, conf=0.25, verbose=False)
-            boxes = results[0].boxes
+            detections = run_yolo(session, image_np)
 
-            if len(boxes) > 0:
-                if model_type == "license_plate_custom":
-                    best_idx = int(boxes.conf.argmax())
-                    box = boxes[best_idx]
-                    coords = box.xyxy[0].cpu().numpy().astype(int).tolist()
-                    conf = float(box.conf[0].cpu().numpy())
-                    return coords, conf
-                else:
-                    vehicle_classes = [2, 3, 5, 7]
-                    best_box = None
-                    best_conf = 0.0
+            if detections:
+                best_box = None
+                best_conf = 0.0
 
-                    for box in boxes:
-                        cls_id = int(box.cls[0].cpu().numpy())
-                        conf = float(box.conf[0].cpu().numpy())
-                        if cls_id in vehicle_classes and conf > best_conf:
-                            best_conf = conf
-                            best_box = box.xyxy[0].cpu().numpy().astype(int).tolist()
+                for box, conf, cls_id in detections:
+                    if cls_id in VEHICLE_CLASSES and conf > best_conf:
+                        best_conf = conf
+                        best_box = box
 
-                    if best_box:
-                        vx1, vy1, vx2, vy2 = best_box
-                        vh = vy2 - vy1
-                        vw = vx2 - vx1
-                        # Crop vehicle and run OpenCV plate locator on the vehicle region
-                        v_crop = image_np[vy1:vy2, vx1:vx2]
-                        cv_sub = detect_plate_with_opencv(v_crop)
-                        if cv_sub:
-                            sub_box, sub_conf = cv_sub
-                            return [
-                                vx1 + sub_box[0],
-                                vy1 + sub_box[1],
-                                vx1 + sub_box[2],
-                                vy1 + sub_box[3]
-                            ], round(best_conf * 0.95, 2)
+                if best_box:
+                    vx1, vy1, vx2, vy2 = best_box
+                    vh = vy2 - vy1
+                    vw = vx2 - vx1
+                    # Crop vehicle and run OpenCV plate locator on the vehicle region
+                    v_crop = image_np[vy1:vy2, vx1:vx2]
+                    cv_sub = detect_plate_with_opencv(v_crop)
+                    if cv_sub:
+                        sub_box, sub_conf = cv_sub
+                        return [
+                            vx1 + sub_box[0],
+                            vy1 + sub_box[1],
+                            vx1 + sub_box[2],
+                            vy1 + sub_box[3]
+                        ], round(best_conf * 0.95, 2)
 
-                        px1 = max(0, int(vx1 + vw * 0.15))
-                        py1 = min(h - 1, int(vy1 + vh * 0.50))
-                        px2 = min(w - 1, int(vx2 - vw * 0.15))
-                        py2 = min(h, int(vy2 - vh * 0.05))
-                        return [px1, py1, px2, py2], round(best_conf * 0.85, 2)
+                    px1 = max(0, int(vx1 + vw * 0.15))
+                    py1 = min(h - 1, int(vy1 + vh * 0.50))
+                    px2 = min(w - 1, int(vx2 - vw * 0.15))
+                    py2 = min(h, int(vy2 - vh * 0.05))
+                    return [px1, py1, px2, py2], round(best_conf * 0.85, 2)
 
-                    best_idx = int(boxes.conf.argmax())
-                    box = boxes[best_idx]
-                    coords = box.xyxy[0].cpu().numpy().astype(int).tolist()
-                    conf = float(box.conf[0].cpu().numpy())
-                    return coords, conf
+                coords, conf, _ = max(detections, key=lambda d: d[1])
+                return coords, conf
         except Exception as e:
             logger.warning(f"YOLO inference error: {e}")
 
