@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000, // 60s timeout for model inference
+  timeout: 120000, // 120s: covers free-tier server cold start (~50s) plus model inference
 });
 
 export async function detectPlate(file: File): Promise<DetectionResult> {

@@ -57,7 +57,7 @@ export default function HomePage() {
       const msg =
         err.response?.data?.detail ||
         err.message ||
-        "Failed to connect to backend scanner service. Ensure server is running on http://localhost:8000.";
+        "Failed to connect to the scanner service. The server may be waking up — please try again in a minute.";
       setError(msg);
     } finally {
       setIsLoading(false);
