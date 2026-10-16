@@ -10,14 +10,21 @@ db_url = settings.DATABASE_URL
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
+if not db_url:
+    logger.warning("DATABASE_URL is not set - using local SQLite (data is lost when the server restarts).")
+    db_url = "sqlite:///./fallback_anpr.db"
+
 try:
-    engine = create_engine(
-        db_url,
-        pool_pre_ping=True,
-        pool_size=10,
-        max_overflow=20,
-        connect_args={"sslmode": "require"} if "sslmode" not in db_url else {}
-    )
+    if db_url.startswith("sqlite"):
+        engine = create_engine(db_url, connect_args={"check_same_thread": False})
+    else:
+        engine = create_engine(
+            db_url,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20,
+            connect_args={"sslmode": "require"} if "sslmode" not in db_url else {}
+        )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 except Exception as e:
     logger.error(f"Failed to initialize SQLAlchemy engine: {e}")

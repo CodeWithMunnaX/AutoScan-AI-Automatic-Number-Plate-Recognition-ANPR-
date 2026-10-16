@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.routes.detection import router as detection_router
 from app.routes.health import router as health_router
+from app.routes.auth import router as auth_router
 from app.database import Base, engine
 
 # Configure logging
@@ -58,6 +59,7 @@ app.add_middleware(
 # Register routes
 app.include_router(detection_router)
 app.include_router(health_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def root():
