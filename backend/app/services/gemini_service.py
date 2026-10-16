@@ -10,7 +10,7 @@ logger = logging.getLogger("anpr.gemini")
 # Order of models to try (ensures resilience against 429 quota exhaustion)
 GEMINI_MODELS = [
     "gemini-flash-latest",
-    "gemini-2.5-flash-lite",
+    "gemini-3.5-flash-lite",
     "gemini-2.5-flash",
 ]
 
@@ -34,7 +34,7 @@ def call_gemini_with_fallback(prompt: str, image_bytes: bytes = None, is_json: b
 
     generation_config = {
         "temperature": 0.0,
-        "maxOutputTokens": 600,
+        "maxOutputTokens": 2048,
     }
     if is_json:
         generation_config["responseMimeType"] = "application/json"
