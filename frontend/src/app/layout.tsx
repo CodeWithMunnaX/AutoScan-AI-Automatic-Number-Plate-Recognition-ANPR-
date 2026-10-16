@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import AuthProvider from "@/components/AuthProvider";
@@ -28,7 +29,14 @@ export default function RootLayout({
                 © 2026 AutoScan AI · Built by{" "}
                 <span className="font-semibold text-pink-600">CodeWithMunnaX</span>
               </p>
-              <p className="text-slate-400">YOLOv8 · OpenCV · Gemini Vision · FastAPI</p>
+              <nav className="flex items-center gap-4">
+                <Link href="/how-it-works" className="hover:text-pink-600">How it works</Link>
+                <Link href="/api-docs" className="hover:text-pink-600">API</Link>
+                <Link href="/about" className="hover:text-pink-600">About</Link>
+                <a href="https://github.com/CodeWithMunnaX" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600">
+                  GitHub
+                </a>
+              </nav>
             </div>
           </footer>
         </AuthProvider>

@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Scan, History, LogOut, Car, UserPlus } from "lucide-react";
+import { Scan, History, LogOut, Car, UserPlus, BarChart3, Cpu, Info } from "lucide-react";
+
+const NAV_LINKS = [
+  { href: "/", label: "Scanner", icon: Scan },
+  { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { href: "/history", label: "History", icon: History },
+  { href: "/how-it-works", label: "How it works", icon: Cpu },
+  { href: "/about", label: "About", icon: Info },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -37,15 +45,12 @@ export default function Navbar() {
 
         {/* Navigation Links */}
         <nav className="flex items-center gap-1 sm:gap-2">
-          <Link href="/" className={navLinkClass(pathname === "/")}>
-            <Scan className="w-4 h-4" />
-            <span className="hidden sm:inline">Scanner</span>
-          </Link>
-
-          <Link href="/history" className={navLinkClass(pathname === "/history")}>
-            <History className="w-4 h-4" />
-            <span className="hidden sm:inline">History</span>
-          </Link>
+          {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+            <Link key={href} href={href} className={navLinkClass(pathname === href)} title={label}>
+              <Icon className="w-4 h-4" />
+              <span className="hidden lg:inline">{label}</span>
+            </Link>
+          ))}
 
           {/* User Authentication */}
           <div className="ml-1 sm:ml-2 pl-2 sm:pl-3 border-l border-pink-100 flex items-center">
